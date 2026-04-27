@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-INPUT_DIR="../images/focal_plane"
+#INPUT_DIR="../images/focal_plane"
+INPUT_DIR="/mnt/data/CTA/optics_data/20260423"
 OUTDIR="./batch_outputs"
 PATTERN="*.raw"
 OVERWRITE=0
