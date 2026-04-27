@@ -9,8 +9,8 @@ PSF outputs:
 - full stretched image with only that PSF contour
 
 Installation: 
-```pip install -e .```
-Then you can run ```focal-plane-refactor``` instead of ```PYTHONPATH=src python -m focal_plane_refactor.cli``` in the example below. 
+- ```pip install -e .```
+- Then you can run ```focal-plane-refactor``` instead of ```PYTHONPATH=src python -m focal_plane_refactor.cli``` in the example below. 
 
 Example:
 
