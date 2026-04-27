@@ -1,88 +1,88 @@
 # focal_plane_refactor
 
 Small package for:
+
 - `process_raw`: make a catalog from FITS/raw/image input
 - `psf`: fit a Gaussian PSF to one catalog source and save two plots
 
-PSF outputs:
-- zoomed raw image around the fitted PSF
-- full stretched image with only that PSF contour
+## Detection backends
 
-Installation: 
-- ```pip install -e .```
-- Then you can run ```focal-plane-refactor``` instead of ```PYTHONPATH=src python -m focal_plane_refactor.cli``` in the example below. 
+`process_raw` supports three backends:
 
-Example:
+- `sep` (default): Python-native source extraction using SEP
+- `sewpy`: optional wrapper around SExtractor, kept for compatibility
+- `simple_detection`: lightweight fallback based on Gaussian smoothing + thresholding
+
+## Installation
+
+### Conda environment
 
 ```bash
-PYTHONPATH=src python -m focal_plane_refactor.cli psf image.fits \
-  --catalog catalog.txt \
-  --source-id 301 \
-  --halfwidth 80 \
-  --zoom-halfwidth 125 \
-  --output-zoom psf_zoom.png \
-  --output-overlay psf_overlay.png
+conda env create -f environment.yml
+conda activate focal-plane-refactor
 ```
 
-
-Zoom color scale options:
-- `--vmin`
-- `--vmax`
-
-Example:
+### Pip editable install
 
 ```bash
-PYTHONPATH=src python -m focal_plane_refactor.cli psf image.fits \
-  --catalog catalog.txt \
-  --source-id 301 \
-  --halfwidth 80 \
-  --zoom-halfwidth 125 \
-  --vmin 2500 \
-  --vmax 9000 \
-  --output-zoom psf_zoom.png \
-  --output-overlay psf_overlay.png
+pip install -e .
 ```
 
+This installs the main runtime dependencies including `sep`.
 
-Use sewpy shape directly for PSF contour:
+If you also want the optional `sewpy` backend:
 
 ```bash
-PYTHONPATH=src python -m focal_plane_refactor.cli psf image.raw \
+pip install -e .[sewpy]
+```
+
+Note that `sewpy` still needs an external SExtractor executable (`source-extractor` or `sex`) available on your `PATH`.
+
+## Examples
+
+```bash
+focal-plane-refactor process_raw image.raw \
   --rows 1944 --cols 2592 \
-  --catalog catalog.txt \
-  --source-id 46 \
-  --halfwidth 10 \
-  --zoom-halfwidth 50 \
-  --use-catalog-shape \
-  --output-zoom psf_zoom.png \
-  --output-overlay psf_overlay.png
-```
-
-
-YAML config support
--------------------
-
-You can put most settings in a YAML file and pass it with `--config`.
-
-Example file: `focal_plane_config.example.yml`
-
-Example:
-```bash
-python -m focal_plane_refactor.cli process_raw image.raw \
-  --rows 1944 --cols 2592 \
-  --config focal_plane_config.example.yml \
   --output-catalog catalog.txt \
-  --preview detections.png \
-  --preview-raw detections_raw.png
+  --preview detections_stretched.png \
+  --preview-raw detections_raw.png \
+  --dump-jpg stretched.jpg \
+  --dump-raw-jpg raw.jpg
 ```
 
-To lower the sewpy threshold, edit:
+Use `sewpy` explicitly:
 
-```yaml
-process_raw:
-  sewpy:
-    config:
-      DETECT_MINAREA: 2
-      DETECT_THRESH: 2.0
-      ANALYSIS_THRESH: 2.0
+```bash
+focal-plane-refactor process_raw image.raw \
+  --rows 1944 --cols 2592 \
+  --method sewpy \
+  --output-catalog catalog.txt
 ```
+
+PSF fitting:
+
+```bash
+focal-plane-refactor psf image.raw \
+  --rows 1944 --cols 2592 \
+  --catalog catalog.txt \
+  --source-id 2 \
+  --halfwidth 10 \
+  --zoom-halfwidth 100 \
+  --output-zoom center_psf_zoom.png \
+  --output-overlay center_psf_overlay.png
+```
+
+## Batch processing
+
+A batch helper script is included:
+
+```bash
+chmod +x batch_focal_plane.sh
+./batch_focal_plane.sh --input-dir ../images/focal_plane --pattern '*.raw'
+```
+
+`psf` is skipped by default in the batch script. Add `--do-psf` to run it.
+
+## YAML config
+
+See `focal_plane_config.example.yml` for the config structure.

@@ -1,22 +1,20 @@
-
 from __future__ import annotations
+
 from pathlib import Path
-from copy import deepcopy
+from typing import Any
 
-try:
-    import yaml
-except Exception:
-    yaml = None
+import yaml
 
-DEFAULT_CONFIG = {
+
+DEFAULT_CONFIG: dict[str, Any] = {
     "process_raw": {
-        "method": "sewpy",
-        "sextractor_path": None,
+        "method": "sep",
+        "ellipse_scale": 2.0,
         "preview": None,
         "preview_raw": None,
         "dump_jpg": None,
         "dump_raw_jpg": None,
-        "ellipse_scale": 2.0,
+        "sextractor_path": None,
         "simple_detection": {
             "gaussian_sigma": 1.2,
             "percentile_threshold": 99.8,
@@ -24,10 +22,29 @@ DEFAULT_CONFIG = {
             "opening_size": 2,
             "min_pixels": 2,
         },
+        "sep": {
+            "threshold_sigma": 5.0,
+            "minarea": 3,
+            "deblend_nthresh": 32,
+            "deblend_cont": 0.005,
+            "clean": True,
+            "clean_param": 1.0,
+            "bw": 64,
+            "bh": 64,
+            "fw": 3,
+            "fh": 3,
+        },
         "sewpy": {
             "params": [
-                "X_IMAGE", "Y_IMAGE", "FLUX_ISO", "FLUX_MAX", "BACKGROUND",
-                "A_IMAGE", "B_IMAGE", "THETA_IMAGE", "FLAGS"
+                "X_IMAGE",
+                "Y_IMAGE",
+                "FLUX_ISO",
+                "FLUX_MAX",
+                "BACKGROUND",
+                "A_IMAGE",
+                "B_IMAGE",
+                "THETA_IMAGE",
+                "FLAGS",
             ],
             "config": {
                 "DETECT_MINAREA": 3,
@@ -42,32 +59,31 @@ DEFAULT_CONFIG = {
     "psf": {
         "halfwidth": 50,
         "zoom_halfwidth": 20,
-        "annotate_psf": False,
-        "single_contour_2rms": False,
         "contour_levels": 6,
         "max_match_radius": 50.0,
         "pix2mm": None,
+        "annotate_psf": False,
+        "single_contour_2rms": False,
+        "use_catalog_shape": False,
         "vmin": None,
         "vmax": None,
-        "use_catalog_shape": False,
     },
 }
 
-def _deep_update(base: dict, updates: dict) -> dict:
-    out = deepcopy(base)
-    for k, v in updates.items():
-        if isinstance(v, dict) and isinstance(out.get(k), dict):
-            out[k] = _deep_update(out[k], v)
+
+def _merge(base: dict[str, Any], override: dict[str, Any]) -> dict[str, Any]:
+    out = dict(base)
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(out.get(key), dict):
+            out[key] = _merge(out[key], value)
         else:
-            out[k] = v
+            out[key] = value
     return out
 
-def load_config(path: str | Path | None) -> dict:
-    cfg = deepcopy(DEFAULT_CONFIG)
+
+def load_config(path: str | Path | None) -> dict[str, Any]:
     if path is None:
-        return cfg
-    if yaml is None:
-        raise RuntimeError("PyYAML is required for --config support")
-    with open(path, "r") as f:
+        return DEFAULT_CONFIG
+    with open(path, "r", encoding="utf-8") as f:
         user_cfg = yaml.safe_load(f) or {}
-    return _deep_update(cfg, user_cfg)
+    return _merge(DEFAULT_CONFIG, user_cfg)

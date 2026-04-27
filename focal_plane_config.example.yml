@@ -1,12 +1,28 @@
 process_raw:
-  method: sewpy
+  method: sep
   ellipse_scale: 2.0
+  preview:
+  preview_raw:
+  dump_jpg:
+  dump_raw_jpg:
+  sextractor_path:
   simple_detection:
     gaussian_sigma: 1.2
     percentile_threshold: 99.8
     sigma_threshold: 5.0
     opening_size: 2
     min_pixels: 2
+  sep:
+    threshold_sigma: 5.0
+    minarea: 3
+    deblend_nthresh: 32
+    deblend_cont: 0.005
+    clean: true
+    clean_param: 1.0
+    bw: 64
+    bh: 64
+    fw: 3
+    fh: 3
   sewpy:
     params:
       - X_IMAGE
@@ -29,11 +45,11 @@ process_raw:
 psf:
   halfwidth: 50
   zoom_halfwidth: 20
-  annotate_psf: false
-  single_contour_2rms: false
   contour_levels: 6
   max_match_radius: 50.0
-  pix2mm: null
-  vmin: null
-  vmax: null
+  pix2mm:
+  annotate_psf: false
+  single_contour_2rms: false
   use_catalog_shape: false
+  vmin:
+  vmax:

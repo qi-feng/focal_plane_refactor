@@ -15,7 +15,7 @@ HALFWIDTH=10
 ZOOM_HALFWIDTH=100
 
 usage() {
-    cat <<EOF
+    cat <<USAGE
 Usage:
   $0 [options]
 
@@ -30,7 +30,7 @@ Options:
 Notes:
   PSF is skipped by default.
   Use --do-psf to run the PSF step.
-EOF
+USAGE
 }
 
 while [[ $# -gt 0 ]]; do
@@ -130,5 +130,4 @@ while IFS= read -r rawfile; do
         --single-contour-2rms \
         --output-zoom "$psf_zoom" \
         --output-overlay "$psf_overlay"
-
 done < "$tmpfile"
