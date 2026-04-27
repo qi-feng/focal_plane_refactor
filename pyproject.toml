@@ -19,11 +19,6 @@ dependencies = [
   "sep",
 ]
 
-[project.optional-dependencies]
-sewpy = [
-  "sewpy",
-]
-
 [project.scripts]
 focal-plane-refactor = "focal_plane_refactor.cli:main"
 
