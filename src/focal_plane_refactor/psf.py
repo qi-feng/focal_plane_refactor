@@ -145,8 +145,12 @@ def plot_psf_zoom(
 
     sub = np.asarray(image[y1:y2, x1:x2], dtype=float)
     yy, xx = np.indices(sub.shape)
-    xx += x1
-    yy += y1
+    #xx += x1
+    #yy += y1
+
+    x0_local = result.x0 - x1
+    y0_local = result.y0 - y1
+
 
     fig, ax = plt.subplots(figsize=(6, 5))
     im = ax.imshow(sub, origin="upper", cmap="viridis", vmin=vmin, vmax=vmax)
@@ -155,8 +159,10 @@ def plot_psf_zoom(
     model_sub = _elliptical_gaussian(
         (xx, yy),
         result.amplitude,
-        result.x0,
-        result.y0,
+        #result.x0,
+        #result.y0,
+        x0_local,
+        y0_local,
         result.sigma_x,
         result.sigma_y,
         np.deg2rad(result.theta_deg),
